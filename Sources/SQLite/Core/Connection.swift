@@ -103,12 +103,14 @@ public final class Connection {
     ///     Default: `false`.
     ///
     /// - Returns: A new database connection.
-    public init(_ location: Location = .inMemory, readonly: Bool = false) throws {
+    public init(_ location: Location = .inMemory, readonly: Bool = false, key: String) throws {
         let flags = readonly ? SQLITE_OPEN_READONLY : (SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE)
         try check(sqlite3_open_v2(location.description,
                                   &_handle,
                                   flags | SQLITE_OPEN_FULLMUTEX | SQLITE_OPEN_URI,
                                   nil))
+        let keyStatement = "PRAGMA key = '\(key)';"
+        sqlite3_exec(_handle, keyStatement, nil, nil, nil);
         queue.setSpecific(key: Connection.queueKey, value: queueContext)
     }
 
